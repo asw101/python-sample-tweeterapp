@@ -24,18 +24,32 @@ spec:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: DJANGO_SETTINGS_MODULE
+              value: "tweeter3.settings.production"
+            - name: DB_NAME
+              value: "postgres"
+            - name: DB_HOST
+              value: "pg190700.postgres.database.azure.com"
+            - name: DB_USER
+              value: "postgres@pg190700"
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: azure-postgres
+                  key: AZURE_POSTGRES_PASSWORD
           ports:
             - name: http
-              containerPort: 80
+              containerPort: 8000
               protocol: TCP
           livenessProbe:
             httpGet:
               path: /
-              port: http
+              port: 8000
           readinessProbe:
             httpGet:
               path: /
-              port: http
+              port: 8000
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
